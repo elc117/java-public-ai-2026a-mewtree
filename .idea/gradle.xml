@@ -5,6 +5,11 @@
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/javalin" />
         <option name="gradleJvm" value="#GRADLE_JAVA_HOME" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/javalin" />
+          </set>
+        </option>
       </GradleProjectSettings>
     </option>
   </component>
