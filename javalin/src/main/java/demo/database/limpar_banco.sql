@@ -1,0 +1,4 @@
+DROP TABLE IF EXISTS trabalhador;
+DROP TABLE IF EXISTS cargo;
+DROP TABLE IF EXISTS horario;
+DROP TABLE IF EXISTS dia_semana;
