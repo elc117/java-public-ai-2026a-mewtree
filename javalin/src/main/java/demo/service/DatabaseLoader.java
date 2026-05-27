@@ -1,59 +1,61 @@
 package demo.service;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.Paths;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.Statement;
-import java.util.stream.Stream;
-
 
 public class DatabaseLoader {
 
-    private final Connection connection;
-    private final String pastaScripts = "database/";
+    private static final String DB_URL = "jdbc:sqlite:equipes.db";
 
-    public DatabaseLoader(Connection connection) {
-        this.connection = connection;
+    public static Connection getConnection() throws Exception {
+        Connection conn = DriverManager.getConnection(DB_URL);
+        conn.createStatement().execute("PRAGMA foreign_keys = ON");
+        return conn;
     }
 
-    public void inicializarBanco() {
-        executarScript("criacao_banco.sql");
-        executarScript("dados_iniciais.sql");
-
-        System.out.println("BANCO INICIADO");
-    }
-
-    public void executarScript(String nomeArquivo) {
-        Path caminho = Paths.get(pastaScripts + nomeArquivo);
-
-        if (!Files.exists(caminho)){
-            throw new RuntimeException("Arquivo SQL nao encontrado: " +  nomeArquivo);
-        }
-
+    public static void inicializar() {
         try {
-            String conteudo = Files.readString(caminho);
-            String[] comandos = conteudo.split(";");
-
-            try (Statement stmt = connection.createStatement()) {
-                for (String comando : comandos) {
-                    comando = comando.trim();
-
-                    if (!comando.isEmpty()) {
-                        stmt.execute(comando);
-                    }
-                }
+            executarSql("/demo/database/criacao_banco.sql");
+            if (bancoPrecisaDeDados()) {
+                executarSql("/demo/database/dados_iniciais.sql");
             }
-            System.out.println("BANCO EXECUTADO");
+            System.out.println("[DB] Banco inicializado com sucesso.");
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao executar script SQL: " + nomeArquivo, e);
+            System.err.println("[DB] Erro ao inicializar banco: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    public void resetarBanco() {
-        executarScript("limpar_banco.sql");
-        executarScript("banco resetado com suceso");
+    public static void resetar() {
+        try {
+            executarSql("/demo/database/limpar_banco.sql");
+            executarSql("/demo/database/criacao_banco.sql");
+            executarSql("/demo/database/dados_iniciais.sql");
+            System.out.println("[DB] Banco resetado com sucesso.");
+        } catch (Exception e) {
+            System.err.println("[DB] Erro ao resetar banco: " + e.getMessage());
+        }
     }
 
+    private static boolean bancoPrecisaDeDados() throws Exception {
+        try (Connection conn = getConnection();
+             var rs = conn.createStatement().executeQuery("SELECT COUNT(*) FROM trabalhador")) {
+            return rs.getInt(1) == 0;
+        }
+    }
+
+    public static void executarSql(String resourcePath) throws Exception {
+        InputStream is = DatabaseLoader.class.getResourceAsStream(resourcePath);
+        if (is == null) throw new RuntimeException("SQL não encontrado: " + resourcePath);
+        String sql = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
+            for (String comando : sql.split(";")) {
+                String c = comando.trim();
+                if (!c.isEmpty()) stmt.execute(c);
+            }
+        }
+    }
 }

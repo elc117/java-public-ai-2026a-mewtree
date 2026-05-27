@@ -1,23 +1,40 @@
-CREATE TABLE IF NOT EXIST cargo (
+CREATE TABLE IF NOT EXISTS cargo (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nome TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXIST trabalhador (
+CREATE TABLE IF NOT EXISTS trabalhador (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nome TEXT NOT NULL,
     cargo_id INTEGER,
     FOREIGN KEY (cargo_id) REFERENCES cargo(id)
 );
 
-CREATE TABLE IF NOT EXIST horario(
+CREATE TABLE IF NOT EXISTS horario(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     hora_inicio TEXT NOT NULL,
     hora_fim TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXIST dia_semana(
+CREATE TABLE IF NOT EXISTS dia_semana(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nome TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS habilidades(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    trabalhador_id INTEGER NOT NULL,
+    nome TEXT NOT NULL,
+    FOREIGN KEY (trabalhador_id) REFERENCES trabalhador(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS escala(
+    id INTEGER NOT NULL,
+    trabalhador_id INTEGER NOT NULL,
+    dia_semana TEXT NOT NULL,
+    hora_inicio TEXT REAL NULL,
+    hora_fim REAL NOT NULL,
+    FOREIGN KEY (trabalhador_id) REFERENCES trabalhador(id) ON DELETE CASCADE
+);
+
 
