@@ -12,11 +12,7 @@ dependencies {
   implementation("io.javalin:javalin-bundle:6.7.0")
   implementation("org.xerial:sqlite-jdbc:3.50.3.0")
 
-  // ==============================
-  // ADICIONADO (recomendado)
-  // ==============================
 
-  // Logging (melhor para debug do sistema de grupos)
   implementation("org.slf4j:slf4j-simple:2.0.13")
 
   // JSON (vai ser MUITO útil para API de grupos/empresas)
